@@ -1,0 +1,37 @@
+﻿@startuml
+
+class Ingredient {
+  +String name
+  +Allergens[] allergens
+  +Nutrient[] nutrient
+  +Category category
+}
+
+class Nutrient{
+  +String type
+}
+
+class Category {
+  +String name
+}
+
+class DietType {
+  +String name
+  +Category[] allowedCategories
+}
+
+enum Allergens {
+  +name
+}
+
+Ingredient --> Nutrient : contains x gram per 100g
+Ingredient --> Category : belongs to
+Ingredient --> Allergens : has
+DietType --> Category : allows
+Category --> Category : is a
+Ingredient --> Ingredient : goes well with
+'for example: sugar is carb
+Nutrient --> Nutrient : is a
+
+
+@enduml
