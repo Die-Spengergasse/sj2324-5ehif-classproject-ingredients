@@ -28,7 +28,7 @@ const resolvers = {
           // Add more parameters as needed
         },
         headers: {
-          'X-RapidAPI-Key': '3e20366858msh83cd201175488e0p12db60jsn68c137092f39',
+          'X-RapidAPI-Key': '',
           'X-RapidAPI-Host': 'spoonacular-recipe-food-nutrition-v1.p.rapidapi.com',
         },
       };
