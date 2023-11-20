@@ -1,0 +1,44 @@
+version: '3.8'
+
+networks:
+  ingredients_network:
+    driver: bridge
+
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: ingredients_neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-admin}
+    volumes:
+      - neo4j_data:/data
+      - ./neo4j.conf:/conf/neo4j.conf
+    networks:
+      - ingredients_network
+
+  aspnetapp:
+    build: ./Ingredients
+    container_name: ingredients_aspnet
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=${NEO4J_USER:-neo4j}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-admin}
+    volumes:
+      - ./ingredients:/app
+      - ingredients_data:/app
+    depends_on:
+      - neo4j
+    networks:
+      - ingredients_network
+
+volumes:
+  neo4j_data:
+    driver: local
+  ingredients_data:
+    driver: local
