@@ -1,4 +1,5 @@
-﻿using Ingredients.Model;
+﻿using System.Runtime.Intrinsics.Arm;
+using Ingredients.Model;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
 using Newtonsoft.Json;
@@ -83,16 +84,20 @@ public class IngredientsRepository : IIngredientsRepository
             {
                 var result = await rx.RunAsync(
                     "MATCH (n:Ingredient) " +
-                    "WHERE id(n) = $Id " +
+                    $"WHERE id(n) = {id} " +
                     "RETURN n",
                     new { Id = id }
                 );
 
                 var single = await result.SingleAsync();
-                return single[0].As<string>();
+                return single[0];
             });
-        
-        return null!;
+
+        // WOW! I never thought code this terrible could exist yet here we are. 
+        var node = res as INode;
+        var str = JsonConvert.SerializeObject(node.Properties);
+        var ingredient = JsonConvert.DeserializeObject<Ingredient>(str);
+        return ingredient;
     }
 
     public Task<IEnumerable<Ingredient>> GetIngredientsWithMatchingName(string name)
