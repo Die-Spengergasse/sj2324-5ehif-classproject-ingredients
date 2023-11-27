@@ -1,10 +1,11 @@
 ﻿using Ingredients.Database;
+using Ingredients.Model;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Ingredients.Controller;
 
-
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class IngredientsController : ControllerBase
 {
@@ -13,5 +14,30 @@ public class IngredientsController : ControllerBase
     public IngredientsController(IIngredientsRepository ingredientsRepository)
     {
         _ingredientsRepository = ingredientsRepository;
+    }
+
+    /// <summary>
+    /// Create the given <see cref="Ingredient"/> on the database.
+    /// </summary>
+    /// <param name="ingredient"></param>
+    /// <returns></returns>
+    [HttpPost("create")]
+    [SwaggerResponse(StatusCodes.Status200OK, "The ingredient was successfully added", Type = typeof(string))]
+    public async Task<IActionResult> CreateIngredient(Ingredient ingredient)
+    {
+        var id = await _ingredientsRepository.CreateIngredient(ingredient);
+        return Ok(id);
+    }
+
+    /// <summary>
+    /// Get the <see cref="Ingredient"/> with the given id. 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("getById/{id}")]
+    public async Task<IActionResult> GetIngredient(string id)
+    {
+        var res = await _ingredientsRepository.GetIngredient(id);
+        return Ok(res);
     }
 }
