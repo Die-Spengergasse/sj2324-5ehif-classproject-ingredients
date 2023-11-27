@@ -4,9 +4,9 @@ public class Allergens
 {
     public Allergens(string id, char typeShort, string? typeLong)
     {
-        this.Id = id;
-        this.TypeShort = typeShort;
-        this.TypeLong = typeLong;
+        Id = id;
+        TypeShort = typeShort;
+        TypeLong = typeLong;
     }
 
     public string Id { get; set; }
