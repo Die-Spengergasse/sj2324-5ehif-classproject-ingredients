@@ -40,4 +40,17 @@ public class IngredientsController : ControllerBase
         var res = await _ingredientsRepository.GetIngredient(id);
         return Ok(res);
     }
+
+    /// <summary>
+    /// Get an <see cref="Ingredient"/> with given name. 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns>List of <see cref="Ingredients"/></returns>
+    [HttpGet("getByName/{name}")]
+    public async Task<IActionResult> GetIngredientsWithMatchingName(string name)
+    {
+        var res = await _ingredientsRepository.GetIngredientsWithMatchingName(name);
+        return Ok(res);
+    }
+    
 }

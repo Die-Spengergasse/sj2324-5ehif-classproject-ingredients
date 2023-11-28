@@ -1,9 +1,5 @@
 ﻿using Ingredients.Database;
 using Ingredients.Options;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Neo4j.Driver;
 
@@ -26,7 +22,7 @@ public class Startup
         services.AddSwaggerGen(c =>
         {
             c.EnableAnnotations();
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fennec API", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ingredients API", Version = "v1" });
 
             var filePath = Path.Combine(AppContext.BaseDirectory, "Ingredients.xml");
             c.IncludeXmlComments(filePath);
@@ -48,7 +44,7 @@ public class Startup
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Fennec API V1");
+            c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Ingredients API V1");
             c.RoutePrefix = "swagger";
         });
         

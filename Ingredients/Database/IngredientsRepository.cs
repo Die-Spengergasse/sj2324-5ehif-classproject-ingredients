@@ -1,6 +1,4 @@
-﻿using System.Runtime.Intrinsics.Arm;
-using Ingredients.Model;
-using Microsoft.Extensions.Logging;
+﻿using Ingredients.Model;
 using Neo4j.Driver;
 using Newtonsoft.Json;
 
@@ -85,8 +83,7 @@ public class IngredientsRepository : IIngredientsRepository
                 var result = await rx.RunAsync(
                     "MATCH (n:Ingredient) " +
                     $"WHERE id(n) = {id} " +
-                    "RETURN n",
-                    new { Id = id }
+                    "RETURN n"
                 );
 
                 var single = await result.SingleAsync();
@@ -100,9 +97,33 @@ public class IngredientsRepository : IIngredientsRepository
         return ingredient;
     }
 
-    public Task<IEnumerable<Ingredient>> GetIngredientsWithMatchingName(string name)
+    public async Task<IEnumerable<Ingredient>> GetIngredientsWithMatchingName(string name)
     {
-        throw new NotImplementedException();
+        await using var session = _driver.AsyncSession();
+        var res = await session.ExecuteWriteAsync(
+            async rx =>
+            {
+                var result = await rx.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE n.Name = \"{name}\" " +
+                    "RETURN n"
+                    );
+
+                var fetchAsync = await result.ToListAsync();
+                return fetchAsync;
+            });
+
+        // WOW! I never thought code this terrible could exist yet here we are.
+        //      => and yet if it works it works
+        var nodes = res.Select(n => (res[0].Values.Values.ToList()[0] as INode).Properties);
+        
+        var ings = new List<Ingredient>();
+        foreach (var v in nodes)
+        {
+            var propertyStr =  JsonConvert.SerializeObject(v);
+            ings.Add(JsonConvert.DeserializeObject<Ingredient>(propertyStr));
+        }
+        return ings;
     }
 
     public Task UpdateIngredient(string id, Ingredient ingredient)
