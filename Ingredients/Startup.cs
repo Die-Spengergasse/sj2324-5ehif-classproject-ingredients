@@ -2,6 +2,7 @@
 using Ingredients.Options;
 using Microsoft.OpenApi.Models;
 using Neo4j.Driver;
+using System.Globalization;
 
 namespace Ingredients;
 
@@ -37,8 +38,11 @@ public class Startup
     {
     }
 
-    public Task Configure(WebApplication app, IWebHostEnvironment env)
+    public Task Configure(WebApplication app, IWebHostEnvironment env, IServiceProvider serviceProvider)
     {
+        var cultureInfo = new CultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         app.UsePathBase("/api");
         
         app.UseSwagger();
@@ -49,6 +53,15 @@ public class Startup
         });
         
         app.MapControllers();
+        
+          var insertDataFromCsv = Configuration.GetValue<bool>("InsertDataFromCsv");
+    if (insertDataFromCsv)
+    {
+        var driver = serviceProvider.GetRequiredService<IDriver>();
+        var ingredientsRepository = serviceProvider.GetRequiredService<IIngredientsRepository>();
+        var insertDataCSV = new InsertDataCSV(driver);
+        insertDataCSV.InsertDataFromCsv(ingredientsRepository, "ingredients.csv").Wait();
+    }
         return Task.CompletedTask;
     }
 }
