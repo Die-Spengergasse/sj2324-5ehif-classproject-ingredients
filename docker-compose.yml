@@ -15,15 +15,13 @@ services:
       - ingredients_network
 
   aspnetapp:
-    build: ./Ingredients
+    build: ./
     container_name: ingredients_aspnet
     ports:
       - "5000:80"
     environment:
       - ASPNETCORE_URLS=http://+:80
       - NEO4J_URI=bolt://neo4j:7687
-    volumes:
-      - ./ingredients:/app
     depends_on:
       - neo4j
     networks:
@@ -35,6 +33,4 @@ networks:
 
 volumes:
   neo4j_data:
-    driver: local
-  ingredients_data:
     driver: local

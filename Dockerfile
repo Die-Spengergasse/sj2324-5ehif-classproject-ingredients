@@ -5,10 +5,10 @@ WORKDIR /app
 
 # Copy the project files to the working directory of the docker image
 COPY . ./
-RUN dotnet publish Ingredients/Ingredients.csproj -c Release -o out
+RUN dotnet publish Ingredients/Ingredients.csproj -c Release -o /app/out
 
 # Stage 2: Use the official .NET 6.0 runtime base image for better performance
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/sdk:7.0
 WORKDIR /app
 
 # Copy the build output from the previous stage
