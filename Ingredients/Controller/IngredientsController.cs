@@ -53,4 +53,16 @@ public class IngredientsController : ControllerBase
         return Ok(res);
     }
     
+    /// <summary>
+    /// Delete an <see cref="Ingredient"/> with a matching name
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns>The removed <see cref="Ingredient(s)"/>, empty list if nothing was found</returns>
+    [HttpDelete("deleteByName/{name}")]
+    public async Task<IActionResult?> DeleteIngredientWithMatchingName(string name)
+    {
+        var res = await _ingredientsRepository.DeleteIngredientByName(name);
+        return Ok(res);
+    }
+    
 }

@@ -44,6 +44,13 @@ public interface IIngredientsRepository
     /// <param name="id"></param>
     /// <returns>The removed <see cref="Ingredient" />, null if not found</returns>
     public Task<Ingredient?> DeleteIngredient(string id);
+
+    /// <summary>
+    ///     Delete an <see cref="Ingredient"/> Node  with the input of it´s <see cref="name"/>  
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns>The removed &lt;see cref="Ingredient" /&gt;, null if not found</returns>
+    public Task<IEnumerable<Ingredient?>?> DeleteIngredientByName(string name);
 }
 
 public class IngredientsRepository : IIngredientsRepository
@@ -134,5 +141,29 @@ public class IngredientsRepository : IIngredientsRepository
     public Task<Ingredient?> DeleteIngredient(string id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<Ingredient?>?> DeleteIngredientByName(string name)
+    {
+        try
+        {
+            var theIngredients = await GetIngredientsWithMatchingName(name);
+            await using var session = _driver.AsyncSession();
+            await session.ExecuteWriteAsync(async work =>
+            {
+                var res = await work.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE n.Name=\"{name}\" " +
+                    "detach delete n");
+            });
+            return theIngredients;
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine($"something went wrong: \n{e}");
+            return null; // if something goes wrong return null as of the doc
+        }
+
+        return null; // if something goes wrong return null as of the doc
     }
 }
