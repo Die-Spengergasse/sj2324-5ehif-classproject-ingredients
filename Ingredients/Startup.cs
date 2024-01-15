@@ -1,4 +1,3 @@
-﻿using System.Globalization;
 using Ingredients.Database;
 using Ingredients.Options;
 using Microsoft.OpenApi.Models;
@@ -32,6 +31,7 @@ public class Startup
         services.AddControllers();
         services.AddSingleton<IDriver>(_ => GraphDatabase.Driver(neo4JSettings.Neo4JConnection, AuthTokens.None));
         services.AddSingleton<IIngredientsRepository, IngredientsRepository>();
+        services.AddSingleton<IAllergensRepository, AllergensRepository>();
     }
 
     public void ConfigureHost(ConfigureHostBuilder host, IConfiguration configuration)
@@ -63,5 +63,6 @@ public class Startup
         });
         
         app.MapControllers();
+        return Task.CompletedTask;
     }
 }
