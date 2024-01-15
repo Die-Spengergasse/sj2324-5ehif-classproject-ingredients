@@ -1,8 +1,8 @@
 namespace Ingredients.Model;
 
-public class Allergens
+public class Allergen
 {
-    public Allergens(string id, char typeShort, string? typeLong)
+    public Allergen(string id, char typeShort, string? typeLong)
     {
         Id = id;
         TypeShort = typeShort;

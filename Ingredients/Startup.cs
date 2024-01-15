@@ -1,4 +1,5 @@
-﻿using Ingredients.Database;
+﻿using Allergens.Database;
+using Ingredients.Database;
 using Ingredients.Options;
 using Microsoft.OpenApi.Models;
 using Neo4j.Driver;
@@ -31,6 +32,7 @@ public class Startup
         services.AddControllers();
         services.AddSingleton<IDriver>(_ => GraphDatabase.Driver(neo4JSettings.Neo4JConnection, AuthTokens.None));
         services.AddSingleton<IIngredientsRepository, IngredientsRepository>();
+        services.AddSingleton<IAllergensRepository, AllergensRepository>();
     }
 
     public void ConfigureHost(ConfigureHostBuilder host, IConfiguration configuration)
