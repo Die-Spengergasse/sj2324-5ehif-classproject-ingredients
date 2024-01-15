@@ -44,7 +44,7 @@ public class InsertDataCSV
         using (var reader = new StreamReader(filePath))
         {
             var lines = File.ReadAllLines(filePath).Skip(1);
-
+            // TODO : Optimization possible 
             foreach (var line in lines)
             {
                 var values = line.Split(new string[] { "\",\"" }, StringSplitOptions.None);
