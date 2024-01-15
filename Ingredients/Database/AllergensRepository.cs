@@ -45,6 +45,13 @@ public interface IAllergensRepository
     /// <param name="id"></param>
     /// <returns>The removed <see cref="Allergen" />, null if not found</returns>
     public Task<Allergen?> DeleteAllergen(string id);
+
+    /// <summary>
+    ///     Get a list of <see cref="Ingredient" />s that have the allergen passed.
+    /// </summary>
+    /// <param allergenId="Id"></param>
+    /// <returns></returns>
+    public Task<IEnumerable<Ingredient>> GetIngredientsWithAllergen(string allergenId);
 }
 
 public class AllergensRepository : IAllergensRepository
@@ -134,6 +141,11 @@ public class AllergensRepository : IAllergensRepository
     }
 
     public Task<Allergen?> DeleteAllergen(string id)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public Task<IEnumerable<Ingredient>> GetIngredientsWithAllergen(string allergenId)
     {
         throw new NotImplementedException();
     }
