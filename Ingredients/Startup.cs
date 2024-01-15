@@ -28,7 +28,7 @@ public class Startup
             var filePath = Path.Combine(AppContext.BaseDirectory, "Ingredients.xml");
             c.IncludeXmlComments(filePath);
         });
-
+        
         services.AddControllers();
         services.AddSingleton<IDriver>(_ => GraphDatabase.Driver(neo4JSettings.Neo4JConnection, AuthTokens.None));
         services.AddSingleton<IIngredientsRepository, IngredientsRepository>();
@@ -54,14 +54,14 @@ public class Startup
         }
 
         app.UsePathBase("/api");
-
+        
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Ingredients API V1");
             c.RoutePrefix = "swagger";
         });
-
+        
         app.MapControllers();
     }
 }
