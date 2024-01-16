@@ -82,7 +82,7 @@ public class IngredientsRepository : IIngredientsRepository
             {
                 var result = await rx.RunAsync(
                     "MATCH (n:Ingredient) " +
-                    $"WHERE id(n) = {id} " +
+                    $"WHERE n.Id = \"{id}\" " +
                     "RETURN n"
                 );
 
