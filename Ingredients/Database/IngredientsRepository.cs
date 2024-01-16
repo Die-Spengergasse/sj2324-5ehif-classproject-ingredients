@@ -126,13 +126,38 @@ public class IngredientsRepository : IIngredientsRepository
         return ings;
     }
 
-    public Task UpdateIngredient(string id, Ingredient ingredient)
+    public async Task UpdateIngredient(string id, Ingredient ingredient)
     {
-        throw new NotImplementedException();
+        var parameters = ParameterSerializer.ToDictionary(ingredient);
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE n.Id = \"{id}\" " +
+                    "SET n = $Object",
+                    new { Object = parameters });
+            });
     }
 
-    public Task<Ingredient?> DeleteIngredient(string id)
+    public async Task<Ingredient?> DeleteIngredient(string id)
     {
-        throw new NotImplementedException();
+        await using var session = _driver.AsyncSession();
+        var res = await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                var result = await tx.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE n.Id = \"{id}\" " +
+                    "DETACH DELETE n " +
+                    "RETURN n"
+                );
+                var single = await result.SingleAsync();
+                return single[0];
+            });
+        var str = JsonConvert.SerializeObject(res);
+        var ingredient = JsonConvert.DeserializeObject<Ingredient>(str);
+        return ingredient;
     }
 }

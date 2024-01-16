@@ -149,11 +149,9 @@ public class AllergensRepository : IAllergensRepository
                     new { Object = parameters });
             });
     }
-
     
     public async Task<Allergen?> DeleteAllergen(string id)
         {
-            // throw new NotImplementedException();
             await using var session = _driver.AsyncSession();
             var res = await session.ExecuteWriteAsync(
                 async tx =>
