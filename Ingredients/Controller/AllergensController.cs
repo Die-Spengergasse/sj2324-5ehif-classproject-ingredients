@@ -55,6 +55,12 @@ public class AllergensController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// Update an <see cref="Allergen"/> with given Id. 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="allergen"></param>
+    /// <returns>Id of updated <see cref="Allergen"/></returns>
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateAllergen(string id, Allergen allergen)
     {
@@ -62,6 +68,11 @@ public class AllergensController : ControllerBase
         return Ok(id);
     }
     
+    /// <summary>
+    /// Delete an <see cref="Allergen"/> with given Id. 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>Deleted <see cref="Allergen"/></returns>
     [HttpDelete("deleteById/{id}")]
     public async Task<IActionResult> DeleteAllergen(string id)
     {
