@@ -150,7 +150,11 @@ public class IngredientsRepository : IIngredientsRepository
                 return single[0];
             });
 
-        return (Ingredient?)updated;
+        var node = updated as INode;
+        var serialize = JsonConvert.SerializeObject(node.Properties);
+        var deserialize = JsonConvert.DeserializeObject<Ingredient>(serialize);
+
+        return deserialize;
     }
 
     /// <summary>
@@ -174,6 +178,10 @@ public class IngredientsRepository : IIngredientsRepository
                 return single[0];
             });
         
-        return (Ingredient?)deleted;
+        var node = deleted as INode;
+        var serialize = JsonConvert.SerializeObject(node.Properties);
+        var deserialize = JsonConvert.DeserializeObject<Ingredient>(serialize);
+        
+        return deserialize;
     }
 }
