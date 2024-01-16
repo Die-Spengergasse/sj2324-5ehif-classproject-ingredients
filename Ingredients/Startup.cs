@@ -1,4 +1,5 @@
-﻿using Ingredients.Database;
+﻿using System.Globalization;
+using Ingredients.Database;
 using Ingredients.Options;
 using Microsoft.OpenApi.Models;
 using Neo4j.Driver;
@@ -13,7 +14,7 @@ public class Startup
     }
 
     private IConfigurationRoot Configuration { get; }
-    
+
     public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment)
     {
         var neo4JSettings = new Neo4JOptions();
@@ -37,8 +38,21 @@ public class Startup
     {
     }
 
-    public Task Configure(WebApplication app, IWebHostEnvironment env)
+    public async Task Configure(WebApplication app, IWebHostEnvironment env, IServiceProvider serviceProvider)
     {
+        var cultureInfo = new CultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+        // TODO: Make sure to only use like this in development  
+        var insertDataFromCsv = Configuration.GetValue<bool>("InsertDataFromCsv");
+        if (insertDataFromCsv)
+        {
+            var driver = serviceProvider.GetRequiredService<IDriver>();
+            var ingredientsRepository = serviceProvider.GetRequiredService<IIngredientsRepository>();
+            var insertDataCSV = new InsertDataCSV(driver);
+            await insertDataCSV.InsertDataFromCsv(ingredientsRepository, "ingredients.csv");
+        }
+
         app.UsePathBase("/api");
         
         app.UseSwagger();
@@ -49,6 +63,5 @@ public class Startup
         });
         
         app.MapControllers();
-        return Task.CompletedTask;
     }
 }
