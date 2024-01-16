@@ -38,4 +38,18 @@ public class CategoriesController : ControllerBase
         return Ok(res);
     }
     
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteCategory(string id)
+    {
+        var res = await _categoriesRepository.DeleteCategory(id);
+        return Ok(res);
+    }
+    
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateCategory(string id, Category category)
+    {
+        await _categoriesRepository.UpdateCategory(id, category);
+        return Ok();
+    }
+    
 }
