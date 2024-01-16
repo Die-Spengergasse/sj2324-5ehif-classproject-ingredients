@@ -52,4 +52,11 @@ public class CategoriesController : ControllerBase
         return Ok();
     }
     
+    [HttpPut("category/{id}/ingredients")]
+    public async Task<IActionResult> GetIngredientsForCategory(string id)
+    {
+        var res = await _categoriesRepository.GetIngredientsForCategory(id);
+        return Ok(res);
+    }
+    
 }
