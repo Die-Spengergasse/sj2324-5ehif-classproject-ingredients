@@ -135,15 +135,43 @@ public class AllergensRepository : IAllergensRepository
         return ings;
     }
 
-    public Task UpdateAllergen(string id, Allergen allergen)
+    public async Task UpdateAllergen(string id, Allergen allergen)
     {
-        throw new NotImplementedException();
+        var parameters = ParameterSerializer.ToDictionary(allergen);
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (n:Allergen) " +
+                    $"WHERE n.Id = \"{id}\" " +
+                    "SET n = $Object",
+                    new { Object = parameters });
+            });
     }
 
-    public Task<Allergen?> DeleteAllergen(string id)
-    {
-        throw new NotImplementedException();
-    }
+    
+    public async Task<Allergen?> DeleteAllergen(string id)
+        {
+            // throw new NotImplementedException();
+            await using var session = _driver.AsyncSession();
+            var res = await session.ExecuteWriteAsync(
+                async tx =>
+                {
+                    var result = await tx.RunAsync(
+                        "MATCH (n:Allergen) " +
+                        $"WHERE n.Id = \"{id}\" " +
+                        "DETACH DELETE n " +
+                        "RETURN n"
+                    );
+                    var single = await result.SingleAsync();
+                    return single[0];
+                });
+            var str = JsonConvert.SerializeObject(res);
+            var allergen = JsonConvert.DeserializeObject<Allergen>(str);
+            return allergen;
+        } 
+    
     
     public Task<IEnumerable<Ingredient>> GetIngredientsWithAllergen(string allergenId)
     {
