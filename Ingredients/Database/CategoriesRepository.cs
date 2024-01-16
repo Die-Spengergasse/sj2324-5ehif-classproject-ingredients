@@ -1,18 +1,19 @@
 ﻿using Neo4j.Driver;
 using Category = Ingredients.Model.Category;
+using Newtonsoft.Json;
 
 namespace Ingredients.Database;
 
 public interface ICategoriesRepository
 {
     public Task<string> CreateCategory(Category category);
-    
+
     public Task<Category?> GetCategory(string id);
-    
+
     public Task<IEnumerable<Category>> GetCategoriesWithMatchingName(string name);
-    
+
     public Task UpdateCategory(string id, Category category);
-    
+
     public Task<Category?> DeleteCategory(string id);
 }
 
@@ -27,30 +28,85 @@ public class CategoriesRepository : ICategoriesRepository
 
     public async Task<string> CreateCategory(Category category)
     {
-        throw new NotImplementedException();
+        var parameters = ParameterSerializer.ToDictionary(category);
+        await using var session = _driver.AsyncSession();
+        var res = await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                var result = await tx.RunAsync(
+                    "CREATE (c:Category $params) " +
+                    "RETURN id(c)",
+                    new { Object = parameters });
 
+                var single = await result.SingleAsync();
+                return single[0].As<string>();
+            });
+
+        return res!;
     }
-    
+
+
     public async Task<Category?> GetCategory(string id)
     {
-        throw new NotImplementedException();
+        await using var session = _driver.AsyncSession();
+        var res = await session.ExecuteWriteAsync(
+            async rx =>
+            {
+                var result = await rx.RunAsync(
+                    "MATCH (c:Category) " +
+                    $"WHERE id(c) = {id} " +
+                    "RETURN c");
 
+                var single = await result.SingleAsync();
+                return single[0];
+            });
+
+        if (res is not INode node)
+        {
+            return null; // No node found
+        }
+
+        var str = JsonConvert.SerializeObject(node.Properties);
+        var category = JsonConvert.DeserializeObject<Category>(str);
+        return category;
     }
-    
+
+
     public async Task<IEnumerable<Category>> GetCategoriesWithMatchingName(string name)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Name cannot be null or whitespace.", nameof(name));
+        }
 
+        const string query = "MATCH (c:Category) WHERE c.Name STARTS WITH $name RETURN c";
+        var parameters = new { name };
+
+        await using var session = _driver.AsyncSession();
+        var result = await session.ExecuteReadAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(query, parameters);
+            return await cursor.ToListAsync();
+        });
+
+        return result.Select(record =>
+        {
+            var node = record["c"].As<INode>();
+            var id = node.ElementId.As<string>();
+            var categoryName = node.Properties["Name"].As<string>();
+
+            return new Category(id, categoryName);
+        });
     }
-    
+
+
     public async Task UpdateCategory(string id, Category category)
     {
         throw new NotImplementedException();
     }
-    
+
     public async Task<Category?> DeleteCategory(string id)
     {
         throw new NotImplementedException();
-
     }
 }
