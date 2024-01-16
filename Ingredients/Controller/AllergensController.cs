@@ -54,5 +54,23 @@ public class AllergensController : ControllerBase
         var res = await _allergensRepository.GetAllergensWithMatchingTypeShort(typeShort);
         return Ok(res);
     }
+
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateAllergen(string id, Allergen allergen)
+    {
+        await _allergensRepository.UpdateAllergen(id, allergen);
+        return Ok(id);
+    }
+    
+    [HttpDelete("deleteById/{id}")]
+    public async Task<IActionResult> DeleteAllergen(string id)
+    {
+        var deletedAllergen = await _allergensRepository.DeleteAllergen(id);
+        if (deletedAllergen == null)
+        {
+            return NotFound();
+        }
+        return Ok(deletedAllergen);
+    } 
     
 }
