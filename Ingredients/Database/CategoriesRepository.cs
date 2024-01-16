@@ -1,5 +1,6 @@
 ﻿using Neo4j.Driver;
 using Category = Ingredients.Model.Category;
+using Ingredient = Ingredients.Model.Ingredient;
 using Newtonsoft.Json;
 
 namespace Ingredients.Database;
@@ -15,6 +16,8 @@ public interface ICategoriesRepository
     public Task UpdateCategory(string id, Category category);
 
     public Task<Category?> DeleteCategory(string id);
+
+    Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId);
 }
 
 public class CategoriesRepository : ICategoriesRepository
@@ -108,5 +111,41 @@ public class CategoriesRepository : ICategoriesRepository
     public async Task<Category?> DeleteCategory(string id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId)
+    {
+        if (string.IsNullOrWhiteSpace(categoryId))
+        {
+            throw new ArgumentException("Category ID cannot be null or whitespace.", nameof(categoryId));
+        }
+
+        const string query =
+            """
+                    MATCH (c:Category)-[:CONTAINS]->(i:Ingredient)
+                    WHERE id(c) = $categoryId
+                    RETURN i
+            """;
+
+        var parameters = new { categoryId };
+
+        await using var session = _driver.AsyncSession();
+        var result = await session.ExecuteReadAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(query, parameters);
+            return await cursor.ToListAsync();
+        });
+
+        return result.Select(record =>
+        {
+            var node = record["i"].As<INode>();
+            var id = node.ElementId.As<string>();
+            var name = node.Properties["Name"].As<string>();
+            var carbs = node.Properties["CarbohydratesInGram"].As<double>();
+            var fats = node.Properties["FatsInGram"].As<double>();
+            var proteins = node.Properties["ProteinsInGram"].As<double>();
+
+            return new Ingredient(id, name, carbs, fats, proteins);
+        });
     }
 }
