@@ -52,6 +52,27 @@ public interface IAllergensRepository
     /// <param allergenId="Id"></param>
     /// <returns></returns>
     public Task<IEnumerable<Ingredient>> GetIngredientsWithAllergen(string allergenId);
+    
+    /*
+     * edges from here onwards
+     */
+    
+    
+    /// <summary>
+    ///     adds a connection from node a to node b
+    /// </summary>
+    /// <param name="idA">the int id of the node the relation is supposed to start from</param>
+    /// <param name="idB">the int id of the node the relation is supposed to end at</param>
+    /// <returns></returns>
+    public Task AddEdgeAllergenToAllergen(int idA, int idB);
+
+    /// <summary>
+    ///     add an edge from allergen to ingredient
+    /// </summary>
+    /// <param name="idAllergen">id of the allergen node (end of the edge)</param>
+    /// <param name="idIngredient">id of the ingredient node (start of the edge)</param>
+    /// <returns></returns>
+    public Task AddEdgeAllergenToIngredient(int idAllergen, int idIngredient);
 }
 
 public class AllergensRepository : IAllergensRepository
@@ -174,5 +195,27 @@ public class AllergensRepository : IAllergensRepository
     public Task<IEnumerable<Ingredient>> GetIngredientsWithAllergen(string allergenId)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task AddEdgeAllergenToAllergen(int idA, int idB)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Allergen {{ Id: \"{idA}\" }}), " +
+                $"(b:Allergen {{ Id: \"{idB}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
+    }
+
+    public async Task AddEdgeAllergenToIngredient(int idAllergen, int idIngredient)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Allergen {{ Id: \"{idAllergen}\" }}), " +
+                $"(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
     }
 }

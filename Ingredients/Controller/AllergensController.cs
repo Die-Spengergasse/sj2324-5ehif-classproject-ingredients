@@ -1,5 +1,4 @@
 using Allergens.Database;
-using Ingredients.Database;
 using Ingredients.Model;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -84,4 +83,40 @@ public class AllergensController : ControllerBase
         return Ok(deletedAllergen);
     } 
     
+    
+    
+    
+    /*
+     * edges from here on down
+     */
+
+    [HttpPost("addEdgeAllergenToAllergen")]
+    public async Task<IActionResult> AddEdgeAllergenToAllergen(int idA, int idB)
+    {
+        try
+        {
+            await _allergensRepository.AddEdgeAllergenToAllergen(idA, idB);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+        return Ok();
+    }
+
+    [HttpPost("AddEdgeAllergenToIngredient")]
+    public async Task<IActionResult> AddEdgeAllergenToIngredient(int idAllergen, int idIngredient)
+    {
+        try
+        {
+            await _allergensRepository.AddEdgeAllergenToIngredient(idAllergen, idIngredient);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+        return Ok();
+    }
 }
