@@ -13,7 +13,7 @@ public class Startup
     }
 
     private IConfigurationRoot Configuration { get; }
-
+    
     public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment)
     {
         var neo4JSettings = new Neo4JOptions();
@@ -63,6 +63,5 @@ public class Startup
         });
         
         app.MapControllers();
-        return Task.CompletedTask;
     }
 }
