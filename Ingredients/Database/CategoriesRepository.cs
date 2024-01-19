@@ -105,12 +105,46 @@ public class CategoriesRepository : ICategoriesRepository
 
     public async Task UpdateCategory(string id, Category category)
     {
-        throw new NotImplementedException();
+        var parameters = new { id, category.Name };
+
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (c:Category) " +
+                    "WHERE id(c) = $id " +
+                    "SET c.Name = $category.Name",
+                    parameters);
+            });
     }
 
     public async Task<Category?> DeleteCategory(string id)
     {
-        throw new NotImplementedException();
+        var parameters = new { id };
+
+        await using var session = _driver.AsyncSession();
+        IResultCursor cursor = await session.WriteTransactionAsync(
+            async tx =>
+            {
+                return await tx.RunAsync(
+                    "MATCH (c:Category) " +
+                    "WHERE id(c) = $id " +
+                    "DELETE c " +
+                    "RETURN c",
+                    parameters);
+            });
+
+        var record = await cursor.SingleAsync();
+        if (record == null)
+        {
+            return null; 
+        }
+
+        var node = record[0].As<INode>();
+        var str = JsonConvert.SerializeObject(node.Properties);
+        var category = JsonConvert.DeserializeObject<Category>(str);
+        return category;
     }
 
     public async Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId)
