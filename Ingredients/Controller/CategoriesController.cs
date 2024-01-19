@@ -80,6 +80,21 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
     }
+    
+    [HttpDelete("removeEdgeCategoryToCategory")]
+    public async Task<IActionResult> RemoveEdgeCategoryToCategory(string idA, string idB)
+    {
+        try
+        {
+            await _categoriesRepository.RemoveEdgeCategoryToCategory(idA, idB);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+    }
 
     [HttpPost("addEdgeCategoryToIngredient")]
     public async Task<IActionResult> AddEdgeCategoryToIngredient(string idCategory, string idIngredient)
@@ -87,6 +102,21 @@ public class CategoriesController : ControllerBase
         try
         {
             await _categoriesRepository.AddEdgeCategoryToIngredient(idCategory, idIngredient);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+    }
+    
+    [HttpDelete("removeEdgeCategoryToIngredient")]
+    public async Task<IActionResult> RemoveEdgeCategoryToIngredient(string idCategory, string idIngredient)
+    {
+        try
+        {
+            await _categoriesRepository.RemoveEdgeCategoryToIngredient(idCategory, idIngredient);
             return Ok();
         }
         catch (Exception e)

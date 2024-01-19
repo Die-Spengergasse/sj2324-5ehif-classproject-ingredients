@@ -22,7 +22,9 @@ public interface ICategoriesRepository
     Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId);
 
     Task AddEdgeCategoryToCategory(string idA, string idB);
+    Task RemoveEdgeCategoryToCategory(string idA, string idB);
     Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient);
+    Task RemoveEdgeCategoryToIngredient(string idCategory, string idIngredient);
 }
 
 public class CategoriesRepository : ICategoriesRepository
@@ -71,7 +73,7 @@ public class CategoriesRepository : ICategoriesRepository
 
         if (res is not INode node)
         {
-            return null; // No node found
+            return null; 
         }
 
         var str = JsonConvert.SerializeObject(node.Properties);
@@ -217,6 +219,16 @@ public class CategoriesRepository : ICategoriesRepository
                 $"CREATE (a)<-[:RELATED_TO]-(b)"
             ));
     }
+    
+    public async Task RemoveEdgeCategoryToCategory(string idA, string idB)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{idA}\" }})-[r:RELATED_TO]->(b:Category {{ Id: \"{idB}\" }})" +
+                $"DELETE r"
+            ));
+    }
 
     public async Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient)
     {
@@ -226,6 +238,16 @@ public class CategoriesRepository : ICategoriesRepository
                 $"MATCH (a:Category {{ Id: \"{idCategory}\" }}), " +
                 $"(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
                 $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
+    }
+    
+    public async Task RemoveEdgeCategoryToIngredient(string idCategory, string idIngredient)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{idCategory}\" }})-[r:RELATED_TO]->(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
+                $"DELETE r"
             ));
     }
 }
