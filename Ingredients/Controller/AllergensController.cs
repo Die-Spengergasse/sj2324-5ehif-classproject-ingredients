@@ -99,8 +99,8 @@ public class AllergensController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return NotFound();
+            //Console.WriteLine(e);
+            return BadRequest();
         }
         return Ok();
     }
@@ -114,7 +114,7 @@ public class AllergensController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            //Console.WriteLine(e);
             return BadRequest();
         }
         return Ok();
