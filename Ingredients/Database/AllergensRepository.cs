@@ -202,9 +202,10 @@ public class AllergensRepository : IAllergensRepository
         await using var session = _driver.AsyncSession();
         await session.ExecuteWriteAsync(
             async tx => await tx.RunAsync(
-                $"MATCH (a:Allergen {{ Id: \"{idA}\" }}), " +
-                $"(b:Allergen {{ Id: \"{idB}\" }})" +
-                $"CREATE (a)<-[:RELATED_TO]-(b)"
+        $"MATCH (a:Allergen), " +
+            $"(b:Allergen) " +
+            $"WHERE id(a) = {idA} AND id(b) = {idB} "+
+            $"CREATE (a)<-[:RELATED_TO]-(b)"
             ));
     }
 
@@ -213,8 +214,9 @@ public class AllergensRepository : IAllergensRepository
         await using var session = _driver.AsyncSession();
         await session.ExecuteWriteAsync(
             async tx => await tx.RunAsync(
-                $"MATCH (a:Allergen {{ Id: \"{idAllergen}\" }}), " +
-                $"(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
+                $"MATCH (a:Allergen), " +
+                $"(b:Ingredient) " +
+                $"WHERE id(a) = {idAllergen} AND id(b) = {idIngredient} "+
                 $"CREATE (a)<-[:RELATED_TO]-(b)"
             ));
     }

@@ -115,7 +115,7 @@ public class AllergensController : ControllerBase
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return NotFound();
+            return BadRequest();
         }
         return Ok();
     }
