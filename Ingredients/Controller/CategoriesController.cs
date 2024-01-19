@@ -95,6 +95,21 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
     }
+    
+    [HttpPut("updateEdgeCategoryToCategory")]
+    public async Task<IActionResult> UpdateEdgeCategoryToCategory(string oldIdA, string oldIdB, string newIdA, string newIdB)
+    {
+        try
+        {
+            await _categoriesRepository.UpdateEdgeCategoryToCategory(oldIdA, oldIdB, newIdA, newIdB);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+    }
 
     [HttpPost("addEdgeCategoryToIngredient")]
     public async Task<IActionResult> AddEdgeCategoryToIngredient(string idCategory, string idIngredient)
@@ -117,6 +132,21 @@ public class CategoriesController : ControllerBase
         try
         {
             await _categoriesRepository.RemoveEdgeCategoryToIngredient(idCategory, idIngredient);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NotFound();
+        }
+    }
+
+    [HttpPut("updateEdgeCategoryToIngredient")]
+    public async Task<IActionResult> UpdateEdgeCategoryToIngredient(string oldIdCategory, string oldIdIngredient, string newIdCategory, string newIdIngredient)
+    {
+        try
+        {
+            await _categoriesRepository.UpdateEdgeCategoryToIngredient(oldIdCategory, oldIdIngredient, newIdCategory, newIdIngredient);
             return Ok();
         }
         catch (Exception e)

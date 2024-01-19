@@ -23,8 +23,10 @@ public interface ICategoriesRepository
 
     Task AddEdgeCategoryToCategory(string idA, string idB);
     Task RemoveEdgeCategoryToCategory(string idA, string idB);
+    Task UpdateEdgeCategoryToCategory(string oldIdA, string oldIdB, string newIdA, string newIdB);
     Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient);
     Task RemoveEdgeCategoryToIngredient(string idCategory, string idIngredient);
+    Task UpdateEdgeCategoryToIngredient(string oldIdCategory, string oldIdIngredient, string newIdCategory, string newIdIngredient);
 }
 
 public class CategoriesRepository : ICategoriesRepository
@@ -229,6 +231,22 @@ public class CategoriesRepository : ICategoriesRepository
                 $"DELETE r"
             ));
     }
+    
+    public async Task UpdateEdgeCategoryToCategory(string oldIdA, string oldIdB, string newIdA, string newIdB)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{oldIdA}\" }})-[r:RELATED_TO]->(b:Category {{ Id: \"{oldIdB}\" }})" +
+                $"DELETE r"
+            ));
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{newIdA}\" }}), " +
+                $"(b:Category {{ Id: \"{newIdB}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
+    }
 
     public async Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient)
     {
@@ -248,6 +266,22 @@ public class CategoriesRepository : ICategoriesRepository
             async tx => await tx.RunAsync(
                 $"MATCH (a:Category {{ Id: \"{idCategory}\" }})-[r:RELATED_TO]->(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
                 $"DELETE r"
+            ));
+    }
+
+    public async Task UpdateEdgeCategoryToIngredient(string oldIdCategory, string oldIdIngredient, string newIdCategory, string newIdIngredient)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{oldIdCategory}\" }})-[r:RELATED_TO]->(b:Ingredient {{ Id: \"{oldIdIngredient}\" }})" +
+                $"DELETE r"
+            ));
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{newIdCategory}\" }}), " +
+                $"(b:Ingredient {{ Id: \"{newIdIngredient}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
             ));
     }
 }
