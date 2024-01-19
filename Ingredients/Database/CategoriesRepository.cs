@@ -12,6 +12,8 @@ public interface ICategoriesRepository
     public Task<Category?> GetCategory(string id);
 
     public Task<IEnumerable<Category>> GetCategoriesWithMatchingName(string name);
+    
+    public Task<IEnumerable<Category>> GetAllCategories();
 
     public Task UpdateCategory(string id, Category category);
 
@@ -101,16 +103,69 @@ public class CategoriesRepository : ICategoriesRepository
             return new Category(id, categoryName);
         });
     }
+    
+    public async Task<IEnumerable<Category>> GetAllCategories()
+    {
+        const string query = "MATCH (c:Category) RETURN c";
+        await using var session = _driver.AsyncSession();
+        var result = await session.ExecuteReadAsync(async tx =>
+        {
+            var cursor = await tx.RunAsync(query);
+            return await cursor.ToListAsync();
+        });
 
+        return result.Select(record =>
+        {
+            var node = record["c"].As<INode>();
+            var id = node.ElementId.As<string>();
+            var categoryName = node.Properties["Name"].As<string>();
+
+            return new Category(id, categoryName);
+        });
+    }
 
     public async Task UpdateCategory(string id, Category category)
     {
-        throw new NotImplementedException();
+        var parameters = new { id, category.Name };
+
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (c:Category) " +
+                    "WHERE id(c) = $id " +
+                    "SET c.Name = $category.Name",
+                    parameters);
+            });
     }
 
     public async Task<Category?> DeleteCategory(string id)
     {
-        throw new NotImplementedException();
+        var parameters = new { id };
+
+        await using var session = _driver.AsyncSession();
+        IResultCursor cursor = await session.WriteTransactionAsync(
+            async tx =>
+            {
+                return await tx.RunAsync(
+                    "MATCH (c:Category) " +
+                    "WHERE id(c) = $id " +
+                    "DELETE c " +
+                    "RETURN c",
+                    parameters);
+            });
+
+        var record = await cursor.SingleAsync();
+        if (record == null)
+        {
+            return null; 
+        }
+
+        var node = record[0].As<INode>();
+        var str = JsonConvert.SerializeObject(node.Properties);
+        var category = JsonConvert.DeserializeObject<Category>(str);
+        return category;
     }
 
     public async Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId)

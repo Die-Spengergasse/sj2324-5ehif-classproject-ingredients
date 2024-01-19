@@ -36,7 +36,7 @@ public interface IIngredientsRepository
     ///     <paramref name="ingredient" />.
     /// </summary>
     /// <returns></returns>
-    public Task UpdateIngredient(string id, Ingredient ingredient);
+    public Task<Ingredient?> UpdateIngredient(string id, Ingredient ingredient);
 
     /// <summary>
     ///     Delete the <see cref="Ingredient" /> with the given <paramref name="id" />.
@@ -126,13 +126,62 @@ public class IngredientsRepository : IIngredientsRepository
         return ings;
     }
 
-    public Task UpdateIngredient(string id, Ingredient ingredient)
+    /// <summary>
+    ///   Replace the <see cref="Ingredient" /> with the given <paramref name="id" /> with
+    ///   the passed new <paramref name="ingredient" />.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ingredient"></param>
+    /// <returns></returns>
+    public async Task<Ingredient?> UpdateIngredient(string id, Ingredient ingredient)
     {
-        throw new NotImplementedException();
+        await using var session = _driver.AsyncSession();
+        var updated = await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                var result = await tx.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE id(n) = {id} " +
+                    "SET n = $Object " +
+                    "RETURN n",
+                    new { Object = ingredient });
+
+                var single = await result.SingleAsync();
+                return single[0];
+            });
+
+        var node = updated as INode;
+        var serialize = JsonConvert.SerializeObject(node.Properties);
+        var deserialize = JsonConvert.DeserializeObject<Ingredient>(serialize);
+
+        return deserialize;
     }
 
-    public Task<Ingredient?> DeleteIngredient(string id)
+    /// <summary>
+    ///    Delete the <see cref="Ingredient" /> with the given <paramref name="id" />.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<Ingredient?> DeleteIngredient(string id)
     {
-        throw new NotImplementedException();
+        await using var session = _driver.AsyncSession();
+        var deleted = await session.ExecuteWriteAsync(
+            async tx =>
+            {
+                var result = await tx.RunAsync(
+                    "MATCH (n:Ingredient) " +
+                    $"WHERE id(n) = {id} " +
+                    "DELETE n " +
+                    "RETURN n");
+
+                var single = await result.SingleAsync();
+                return single[0];
+            });
+        
+        var node = deleted as INode;
+        var serialize = JsonConvert.SerializeObject(node.Properties);
+        var deserialize = JsonConvert.DeserializeObject<Ingredient>(serialize);
+        
+        return deserialize;
     }
 }

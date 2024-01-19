@@ -53,4 +53,28 @@ public class IngredientsController : ControllerBase
         return Ok(res);
     }
     
+    /// <summary>
+    /// Update the <see cref="Ingredient"/> with the given id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ingredient"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateIngredient(string id, [FromBody] Ingredient ingredient)
+    {
+        var res = await _ingredientsRepository.UpdateIngredient(id, ingredient);
+        return Ok(res);
+    }
+    
+    /// <summary>
+    /// Delete the <see cref="Ingredient"/> with the given id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteIngredient(string id)
+    {
+        var res = await _ingredientsRepository.DeleteIngredient(id);
+        return Ok(res);
+    }
 }

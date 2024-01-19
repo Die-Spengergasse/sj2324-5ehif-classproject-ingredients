@@ -38,6 +38,13 @@ public class CategoriesController : ControllerBase
         return Ok(res);
     }
     
+    [HttpGet("getAll")]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        var res = await _categoriesRepository.GetAllCategories();
+        return Ok(res);
+    }
+    
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteCategory(string id)
     {

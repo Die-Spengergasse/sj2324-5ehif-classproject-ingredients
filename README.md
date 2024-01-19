@@ -4,5 +4,7 @@
 
 Remove ```--env=NEO4J_AUTH=none``` to enable authentication. Default credentials are neo4j/neo4j.
 ```
-docker run --publish=7687:7687 --env=NEO4J_AUTH=none neo4j:latest
+docker run --name "neo4j_container" -p 7474:7474 -p 7687:7687 -d --env NEO4J_AUTH=none neo4j:latest
 ```
+
+Locally accessible at: http://localhost:7474/browser/
