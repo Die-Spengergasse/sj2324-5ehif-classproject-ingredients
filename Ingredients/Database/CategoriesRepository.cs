@@ -12,7 +12,7 @@ public interface ICategoriesRepository
     public Task<Category?> GetCategory(string id);
 
     public Task<IEnumerable<Category>> GetCategoriesWithMatchingName(string name);
-    
+
     public Task<IEnumerable<Category>> GetAllCategories();
 
     public Task UpdateCategory(string id, Category category);
@@ -20,6 +20,9 @@ public interface ICategoriesRepository
     public Task<Category?> DeleteCategory(string id);
 
     Task<IEnumerable<Ingredient>> GetIngredientsForCategory(string categoryId);
+
+    Task AddEdgeCategoryToCategory(string idA, string idB);
+    Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient);
 }
 
 public class CategoriesRepository : ICategoriesRepository
@@ -103,7 +106,7 @@ public class CategoriesRepository : ICategoriesRepository
             return new Category(id, categoryName);
         });
     }
-    
+
     public async Task<IEnumerable<Category>> GetAllCategories()
     {
         const string query = "MATCH (c:Category) RETURN c";
@@ -159,7 +162,7 @@ public class CategoriesRepository : ICategoriesRepository
         var record = await cursor.SingleAsync();
         if (record == null)
         {
-            return null; 
+            return null;
         }
 
         var node = record[0].As<INode>();
@@ -202,5 +205,27 @@ public class CategoriesRepository : ICategoriesRepository
 
             return new Ingredient(id, name, carbs, fats, proteins);
         });
+    }
+
+    public async Task AddEdgeCategoryToCategory(string idA, string idB)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{idA}\" }}), " +
+                $"(b:Category {{ Id: \"{idB}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
+    }
+
+    public async Task AddEdgeCategoryToIngredient(string idCategory, string idIngredient)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Category {{ Id: \"{idCategory}\" }}), " +
+                $"(b:Ingredient {{ Id: \"{idIngredient}\" }})" +
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
     }
 }
