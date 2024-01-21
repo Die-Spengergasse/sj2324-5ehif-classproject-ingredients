@@ -12,7 +12,7 @@ public class InsertDataCSV
         _driveForInsert = driveForInsert;
     }
 
-    public async Task InsertDataFromCsv(IIngredientsRepository ingredientsRepository, string filePath)
+    public async Task InsertDataFromCsv(IIngredientsRepository ingredientsRepository, string filePath, string filepathallergen)
     {
         await using var session = _driveForInsert.AsyncSession();
         await session.ExecuteWriteAsync(
@@ -34,6 +34,19 @@ public class InsertDataCSV
             catch (Exception ex)
             {
                 Console.WriteLine($"Fehler beim Einfügen des Ingredients {ingredient.Name}: {ex.Message}");
+            }
+        }
+        //can only work with branch with allergen controller
+        var allergens = ReadCsvFileAllergens(filepathallergen);
+        foreach(var allergene in allergens)
+        {
+            try
+            {
+                await ingredientsRepository.CreateAllergen(allergene);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Einfügen des Allergens {allergene.TypeLong}: {ex.Message}");
             }
         }
     }
@@ -68,5 +81,25 @@ public class InsertDataCSV
         }
 
         return ingredients;
+    }
+    public List<Allergens> ReadCsvFileAllergens(string filePath)
+    {
+        var allerenes = new List<Allergens>();
+        using (var reader = new StreamReader(filePath))
+        {
+            var lines = File.ReadAllLines(filePath).Skip(1);
+            // TODO : Optimization possible 
+            foreach (var line in lines)
+            {
+                var values = line.Split(new string[] { "\",\"" }, StringSplitOptions.None);
+                var carboi = values[2];
+                char carbo = char.Parse(carboi.Trim('"'));
+                var allergens = new Allergens(values[0], carbo, values[2]);
+              
+                allerenes.Add(allergens);
+            }
+        }
+
+        return allerenes;
     }
 }

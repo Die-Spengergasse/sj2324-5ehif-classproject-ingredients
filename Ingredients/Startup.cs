@@ -50,7 +50,7 @@ public class Startup
             var driver = serviceProvider.GetRequiredService<IDriver>();
             var ingredientsRepository = serviceProvider.GetRequiredService<IIngredientsRepository>();
             var insertDataCSV = new InsertDataCSV(driver);
-            await insertDataCSV.InsertDataFromCsv(ingredientsRepository, "ingredients.csv");
+            await insertDataCSV.InsertDataFromCsv(ingredientsRepository, "ingredients.csv", "Allergene.csv");
         }
 
         app.UsePathBase("/api");
