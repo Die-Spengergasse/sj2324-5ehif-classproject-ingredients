@@ -1,15 +1,15 @@
-﻿Abkürzung, Allergene
-1, A, Gluten
-2,B,Crustaceans
-3,C,Eggs from poultry
-4,D,Fish
-5,E,Peanuts
-6,F,Soybeans
-7,G,Milk from mammals
-8,H,Nuts
-9,L,Celery
-10,M,Mustard
-11,N,Sesame seeds
-12,O,Sulphur dioxide and sulphites
-13,P,Lupins
-14,R,Mollusks
+﻿ID, Abkürzung, Allergene
+"1", "A", "Gluten"
+"2", "B", "Crustaceans"
+"3", "C", "Eggs from poultry"
+"4", "D", "Fish"
+"5", "E", "Peanuts"
+"6", "F", "Soybeans"
+"7", "G", "Milk from mammals"
+"8", "H", "Nuts"
+"9", "L", "Celery"
+"10", "M", "Mustard"
+"11", "N", "Sesame seeds"
+"12", "O", "Sulphur dioxide and sulphites"
+"13", "P", "Lupins"
+"14", "R", "Mollusks"

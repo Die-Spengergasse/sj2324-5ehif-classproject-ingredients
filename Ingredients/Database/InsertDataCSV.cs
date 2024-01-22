@@ -1,4 +1,5 @@
-﻿using Ingredients.Model;
+﻿using Allergens.Database;
+using Ingredients.Model;
 using Neo4j.Driver;
 
 namespace Ingredients.Database;
@@ -12,7 +13,7 @@ public class InsertDataCSV
         _driveForInsert = driveForInsert;
     }
 
-    public async Task InsertDataFromCsv(IIngredientsRepository ingredientsRepository, string filePath, string filepathallergen)
+    public async Task InsertDataFromCsv(IIngredientsRepository ingredientsRepository,IAllergensRepository allergensRepository, string filePath, string filepathallergen)
     {
         await using var session = _driveForInsert.AsyncSession();
         await session.ExecuteWriteAsync(
@@ -42,7 +43,7 @@ public class InsertDataCSV
         {
             try
             {
-                await ingredientsRepository.CreateAllergen(allergene);
+                await allergensRepository.CreateAllergen(allergene);
             }
             catch (Exception ex)
             {
@@ -82,24 +83,21 @@ public class InsertDataCSV
 
         return ingredients;
     }
-    public List<Allergens> ReadCsvFileAllergens(string filePath)
+   
+    public List<Allergen> ReadCsvFileAllergens(string filePath)
     {
-        var allerenes = new List<Allergens>();
+        var allerenes = new List<Allergen>();
         using (var reader = new StreamReader(filePath))
         {
             var lines = File.ReadAllLines(filePath).Skip(1);
-            // TODO : Optimization possible 
             foreach (var line in lines)
             {
-                var values = line.Split(new string[] { "\",\"" }, StringSplitOptions.None);
-                var carboi = values[2];
-                char carbo = char.Parse(carboi.Trim('"'));
-                var allergens = new Allergens(values[0], carbo, values[2]);
-              
-                allerenes.Add(allergens);
+                var values = line.Split(',', StringSplitOptions.TrimEntries); 
+                var carboi = values[1].Trim('"'); 
+                    char carbo = carboi[0];
+                    var allergens = new Allergen(values[0], carbo, values[2]);
+                    allerenes.Add(allergens); }
             }
-        }
-
         return allerenes;
     }
 }

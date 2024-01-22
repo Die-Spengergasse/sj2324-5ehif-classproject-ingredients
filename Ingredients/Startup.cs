@@ -56,13 +56,14 @@ public class Startup
         
         app.MapControllers();
         
-          var insertDataFromCsv = Configuration.GetValue<bool>("InsertDataFromCsv");
+        var insertDataFromCsv = Configuration.GetValue<bool>("InsertDataFromCsv");
     if (insertDataFromCsv)
     {
         var driver = serviceProvider.GetRequiredService<IDriver>();
         var ingredientsRepository = serviceProvider.GetRequiredService<IIngredientsRepository>();
+        var allergensRepository = serviceProvider.GetRequiredService<IAllergensRepository>();
         var insertDataCSV = new InsertDataCSV(driver);
-        insertDataCSV.InsertDataFromCsv(ingredientsRepository, "ingredients.csv").Wait();
+        insertDataCSV.InsertDataFromCsv(ingredientsRepository, allergensRepository,"ingredients.csv", "Allergene.csv").Wait();
     }
         return Task.CompletedTask;
     }
