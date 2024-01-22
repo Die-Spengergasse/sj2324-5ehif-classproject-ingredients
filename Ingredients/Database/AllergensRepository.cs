@@ -64,7 +64,7 @@ public interface IAllergensRepository
     /// <param name="idA">the int id of the node the relation is supposed to start from</param>
     /// <param name="idB">the int id of the node the relation is supposed to end at</param>
     /// <returns></returns>
-    public Task AddEdgeAllergenToAllergen(int idA, int idB);
+    public Task AddEdgeAllergenToAllergen(string idA, string idB);
 
     /// <summary>
     ///     add an edge from allergen to ingredient
@@ -72,7 +72,7 @@ public interface IAllergensRepository
     /// <param name="idAllergen">id of the allergen node (end of the edge)</param>
     /// <param name="idIngredient">id of the ingredient node (start of the edge)</param>
     /// <returns></returns>
-    public Task AddEdgeAllergenToIngredient(int idAllergen, int idIngredient);
+    public Task AddEdgeAllergenToIngredient(string idAllergen, string idIngredient);
 }
 
 public class AllergensRepository : IAllergensRepository
@@ -197,27 +197,27 @@ public class AllergensRepository : IAllergensRepository
         throw new NotImplementedException();
     }
 
-    public async Task AddEdgeAllergenToAllergen(int idA, int idB)
+    public async Task AddEdgeAllergenToAllergen(string idA, string idB)
     {
         await using var session = _driver.AsyncSession();
         await session.ExecuteWriteAsync(
             async tx => await tx.RunAsync(
         $"MATCH (a:Allergen), " +
             $"(b:Allergen) " +
-            $"WHERE id(a) = {idA} AND id(b) = {idB} "+
+            $"WHERE a.Id = \"{idA}\" AND b.Id = \"{idB}\" "+
             $"CREATE (a)<-[:RELATED_TO]-(b)"
             ));
     }
 
-    public async Task AddEdgeAllergenToIngredient(int idAllergen, int idIngredient)
+    public async Task AddEdgeAllergenToIngredient(string idAllergen, string idIngredient)
     {
         await using var session = _driver.AsyncSession();
         await session.ExecuteWriteAsync(
             async tx => await tx.RunAsync(
                 $"MATCH (a:Allergen), " +
                 $"(b:Ingredient) " +
-                $"WHERE id(a) = {idAllergen} AND id(b) = {idIngredient} "+
-                $"CREATE (a)<-[:RELATED_TO]-(b)"
+                $"WHERE a.Id = \"{idAllergen}\" AND b.Id = \"{idIngredient}\" "+
+                $"CREATE (a)-[:RELATED_TO]->(b)"
             ));
     }
 }

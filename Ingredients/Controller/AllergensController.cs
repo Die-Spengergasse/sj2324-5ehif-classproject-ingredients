@@ -90,8 +90,8 @@ public class AllergensController : ControllerBase
      * edges from here on down
      */
 
-    [HttpPost("addEdgeAllergenToAllergen")]
-    public async Task<IActionResult> AddEdgeAllergenToAllergen(int idA, int idB)
+    [HttpPost("AddEdgeAllergenToAllergen")]
+    public async Task<IActionResult> AddEdgeAllergenToAllergen(string idA, string idB)
     {
         try
         {
@@ -106,7 +106,7 @@ public class AllergensController : ControllerBase
     }
 
     [HttpPost("AddEdgeAllergenToIngredient")]
-    public async Task<IActionResult> AddEdgeAllergenToIngredient(int idAllergen, int idIngredient)
+    public async Task<IActionResult> AddEdgeAllergenToIngredient(string idAllergen, string idIngredient)
     {
         try
         {
