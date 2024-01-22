@@ -82,4 +82,39 @@ public class IngredientsController : ControllerBase
         return Ok(deletedIngredient);
     } 
     
+    
+    
+    /*
+     * edges from here on down
+     */
+
+    [HttpPost("AddEdgeIngredientToIngredient")]
+    public async Task<IActionResult> AddEdgeIngredientToIngredient(string idA, string idB)
+    {
+        try
+        {
+            await _ingredientsRepository.AddEdgeIngredientToIngredient(idA, idB);
+        }
+        catch (Exception e)
+        {
+            //Console.WriteLine(e);
+            return BadRequest();
+        }
+        return Ok();
+    }
+
+    [HttpPost("AddEdgeIngredientToAllergen")]
+    public async Task<IActionResult> AddEdgeIngredientToAllergen(string idAllergen, string idIngredient)
+    {
+        try
+        {
+            await _ingredientsRepository.AddEdgeIngredientToAllergen(idAllergen, idIngredient);
+        }
+        catch (Exception e)
+        {
+            //Console.WriteLine(e);
+            return BadRequest();
+        }
+        return Ok();
+    }
 }

@@ -44,6 +44,22 @@ public interface IIngredientsRepository
     /// <param name="id"></param>
     /// <returns>The removed <see cref="Ingredient" />, null if not found</returns>
     public Task<Ingredient?> DeleteIngredient(string id);
+
+    /// <summary>
+    ///     adds a connection from node a to node b
+    /// </summary>
+    /// <param name="idA">the int id of the node the relation is supposed to start from</param>
+    /// <param name="idB">the int id of the node the relation is supposed to end at</param>
+    /// <returns></returns>
+    public Task AddEdgeIngredientToIngredient(string idA, string idB);
+
+    /// <summary>
+    ///     add an edge from ingredient to allergen
+    /// </summary>
+    /// <param name="idIngredient">id of the ingredient node (start of the edge)</param>
+    /// <param name="idAllergen">id of the allergen node (end of the edge)</param>
+    /// <returns></returns>
+    public Task AddEdgeIngredientToAllergen(string idIngredient, string idAllergen);
 }
 
 public class IngredientsRepository : IIngredientsRepository
@@ -159,5 +175,29 @@ public class IngredientsRepository : IIngredientsRepository
         var str = JsonConvert.SerializeObject(res);
         var ingredient = JsonConvert.DeserializeObject<Ingredient>(str);
         return ingredient;
+    }
+    
+    public async Task AddEdgeIngredientToIngredient(string idA, string idB)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Ingredient), " +
+                $"(b:Ingredient) " +
+                $"WHERE a.Id = \"{idA}\" AND b.Id = \"{idB}\" "+
+                $"CREATE (a)<-[:RELATED_TO]-(b)"
+            ));
+    }
+
+    public async Task AddEdgeIngredientToAllergen(string idIngredient, string idAllergen)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(
+            async tx => await tx.RunAsync(
+                $"MATCH (a:Allergen), " +
+                $"(b:Ingredient) " +
+                $"WHERE a.Id = \"{idAllergen}\" AND a.Id = \"{idIngredient}\" "+
+                $"CREATE (b)<-[:RELATED_TO]-(a)"
+            ));
     }
 }
