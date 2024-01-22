@@ -1,4 +1,4 @@
-﻿using Allergens.Database;
+using Allergens.Database;
 using Ingredients.Database;
 using Ingredients.Options;
 using Microsoft.OpenApi.Models;

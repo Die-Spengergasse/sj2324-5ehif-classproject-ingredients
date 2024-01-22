@@ -1,4 +1,4 @@
-﻿using Allergens.Database;
+using Allergens.Database;
 using Ingredients.Model;
 using Neo4j.Driver;
 
